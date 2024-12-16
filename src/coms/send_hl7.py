@@ -1,20 +1,18 @@
 import socket
 
 def send_hl7_message(host='127.0.0.1', port=9091):
-    # Sample HL7 message (version 2.3)
-    # hl7_message = (
-    #     "MSH|^~\\&|SendingApp|SendingFac|ReceivingApp|ReceivingFac|202412141234||ORM^O01|123456|P|2.3\r"
-    #     "PID|1||12345^^^Hospital^MR||Doe^John||19700101|M|||123 Main St^^Metropolis^NY^12345||(555)555-5555|||S||123456789|987-65-4320\r"
-    #     "OBR|1||54321^Lab||Blood Test^LAB^1234||202412141200|||F||||||123456789^Smith^Jane||||||||||||||\r"
-    #     "OBX|1|NM|1234^Hemoglobin^LAB||14.8|g/dL|12.0-16.0|N|||F\r"
-    # )
-    
     # Sample HL7 data as a string (you would replace this with your actual HL7 data)
+    # See README.md for more info
     hl7_message = (
-        "MSH|^~\&|LAB^System|ACME^Hospital|ORD^System|ORD Lab|202012251200||ORU^R01|12345|P|2.5"
-        "PID|1||12345^^^ACME^Hospital^MR||Smith^John^^^MR^|Doe^Jane^^^MS|19841215|F||456 Main St^Anytown^NY^12345"
-        "OBR|1|123|RBC^Red Blood Cells|202012251200||||||^John Smith|^^^Doctor^|^^^Dr. John^Smith^Doe^^^"
-        "OBX|1|NM|RBC^Red Blood Cells|2.88 x 10^12/l|2.76-5.74|L|7.3 g/dl|8.8-16.5|L"
+        "MSH|$~\&|A3CPC||||20130816154927||ORU_R01|SAMPLE001|P|2.5.1||||||UNICODE UTF-8|||"
+        "PID|||PATIENT_ID001||Thomas A.||19621119000000|F"
+        "NTE|1||Dr. Smith"
+        "SPM|1|||WB|||||||P"
+        "SAC|||SAMPLE001"
+        "OBR||AWOS_ID001"
+        "OBX|1|TX|WBC||14.80|10^9/l|5.00-10.00|H"
+        "OBX|13|TX|MCHC||28.2|$g/dl|29.7-36.8|L|||P"
+        "OBX|22|TX|P-LCR||30.78|$%|13.00-43.00||||P"
     )
 
     try:
