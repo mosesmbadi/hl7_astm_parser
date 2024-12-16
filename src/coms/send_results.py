@@ -1,11 +1,10 @@
-
 import requests
 from decouple import config
 
 def send_to_lab_endpoints(data, format):
     endpoints = {
         'lab_test_results': 'http://127.0.0.1:8080/lab/lab-test-results/',
-        'lab_test_results_panel': 'http://127.0.0.1:8080/lab/lab-test-results-panel/'
+        'lab_test_results_panel': 'http://127.0.0.1:8080/lab/lab-test-requests-panel/'
     }
 
     email = config('BACKEND_USERNAME')
