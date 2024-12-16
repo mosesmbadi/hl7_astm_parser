@@ -46,9 +46,9 @@ def main():
                         converted_data = convert_hl7_to_json(decoded_data)
                         print(f'Converted json is: {converted_data}')
 
-                        send_to_lab_endpoints(decoded_data, 'hl7')
-                        sent_data = send_to_lab_endpoints(decoded_data, 'hl7')
-                        print(f'Sent data is: {sent_data}')
+                        # send_to_lab_endpoints(decoded_data, 'hl7')
+                        # sent_data = send_to_lab_endpoints(decoded_data, 'hl7')
+                        # print(f'Sent data is: {sent_data}')
 
 
 
