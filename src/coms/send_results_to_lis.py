@@ -1,9 +1,11 @@
 import requests
 from decouple import config
 
+from settings.settings import RESULTS_ENDPOINT
+
 def send_to_lab_endpoints(data_list, format_type):
     # Endpoint base URL
-    base_url = 'http://127.0.0.1:8080/lab/lab-test-requests-panel/'
+    base_url = RESULTS_ENDPOINT
 
     # Get email and password from environment variables
     email = config('BACKEND_USERNAME')
