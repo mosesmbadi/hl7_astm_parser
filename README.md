@@ -6,6 +6,9 @@ Will listen for incoming data, convert to hl7 then send to backend
 Purpose: Will run alongside main system, picks incoming lab results 
 from equipments, converts to json then sends to results endpoint
 
+!["System Design"](docs/LIS_Interfacing_Chart.drawio.png)
+
+
 An endpoint might GET this reponse 
     ```
     {
@@ -138,12 +141,17 @@ for segment in segments:
 ```    
 
 
+The unique identifier that can be used across systems to sync records is the patient ID. From the generated json, record ID are different from tests sent, but the patient ID is the same.
+
+
 ## TODO
 1. ~~ RECEIVE HL7 MESSAGE FROM EQUIPMENT CONVIRT TO JSON AND SEND TO RESULTS ENDPOINT~~
-2. RECEIVE ASTM MESSAGE FROM EQUIPMENT CONVIRT TO JSON AND SEND TO RESULTS ENDPOINT
+2. ~~RECEIVE ASTM MESSAGE FROM EQUIPMENT CONVIRT TO JSON AND SEND TO RESULTS ENDPOINT~~
 
 3. RECEIVE JSON MESSAGE FROM HMIS CONVIRT TO HL7 AND SEND HL7 EQUIPMENT
 4. RECEIVE JSON MESSAGE FROM HMIS CONVIRT TO ASTM AND SEND ASTM EQUIPMENT
 
 5. STORE LIST OF HL7 EQUIPMENT IN A VARIABLE
 6. STORE LIST OF ASTM EQUIPMENT IN A VARIABLE
+
+

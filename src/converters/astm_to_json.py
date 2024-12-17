@@ -72,5 +72,4 @@ def convert_astm_to_json(astm_message):
         test_panel_id += 1
         record_id += 1
 
-        
     return results
