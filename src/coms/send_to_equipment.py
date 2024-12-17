@@ -1,29 +1,10 @@
 from converters.json_to_astm import convert_json_to_astm
 from converters.json_to_hl7 import convert_json_to_hl7
 
+from settings.settings import EQUIPMENT_LIST
 
-EQUIPMENT_1 = {
-    "id": 1,
-    "ip_address": "127.0.0.1",
-    "port": 9091,
-    "data_type": "hl7"
-}
 
-EQUIPMENT_2 = {
-    "id": 2,
-    "ip_address": "127.0.0.1",
-    "port": 9092,
-    "data_type": "astm"
-}
-
-EQUIPMENT_3 = { 
-    "id": 3,
-    "ip_address": "127.0.0.1",
-    "port": 9093,
-    "data_type": "hl7"
-}
-
-EQUIPMENT_LIST = [EQUIPMENT_1, EQUIPMENT_2, EQUIPMENT_3]
+EQUIPMENT_LIST = EQUIPMENT_LIST
 
 
 def find_equipment_by_name(name):
