@@ -1,16 +1,17 @@
 import signal
 import socket
+import json
+import re
+from converters.astm_to_json import convert_astm_to_json
 from converters.hl7_to_json import convert_hl7_to_json
 from coms.send_results import send_to_lab_endpoints
+
 
 ''''
 Will listen for incoming data, convert to hl7 then send to backend
 Purpose: Will run alongside main system, picks incoming lab results 
 from equipments, converts to json then sends to results endpoint
 '''
-
-import json
-import re
 
 
 def main():
@@ -39,18 +40,20 @@ def main():
                             break
 
                     decoded_data = received_data.decode('utf-8')
-                    print(f"Received data: {decoded_data}")
+                    if decoded_data:
+                        print("Data Received")
 
                     if decoded_data.startswith('MSH'):
                         convert_hl7_to_json(decoded_data)
                         converted_data = convert_hl7_to_json(decoded_data)
-                        print(f'Converted json is: {converted_data}')
+                        print(f'Converted hl7 to json is: {converted_data}')
 
                         for test_result in converted_data:
                             send_to_lab_endpoints(converted_data, 'hl7')
 
-                    elif decoded_data.startswith('H|^&'):
-                        astm_message_dict = astm_to_json(decoded_data)
+                    elif decoded_data.startswith('H|'):
+                        astm_message_dict = convert_astm_to_json(decoded_data)
+                        print(f'Converted astm to json is: {astm_message_dict}')
                         send_to_lab_endpoints(astm_message_dict, 'astm')
 
                 finally:
@@ -58,10 +61,6 @@ def main():
 
             except Exception as e:
                 print(f"Exception while accepting incoming connection: {e}")
-
-
-def astm_to_json(astm_data):
-    pass
 
 
 def signal_handler(signal, frame):

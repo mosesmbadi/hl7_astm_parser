@@ -3,6 +3,7 @@ import socket
 def send_hl7_message(host='127.0.0.1', port=9091):
     # Sample HL7 data as a string (you would replace this with your actual HL7 data)
     # See README.md for more info
+    # TODO: Test with HL7 from different equipment
     hl7_message = (
         "MSH|$~\&|A3CPC||||20130816154927||ORU_R01|SAMPLE001|P|2.5.1||||||UNICODE UTF-8|||"
         "PID|||PATIENT_ID001||Thomas A.||19621119000000|F"
