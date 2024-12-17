@@ -13,7 +13,6 @@ def send_to_lab_endpoints(data_list, format_type):
     auth = requests.post(
         'http://127.0.0.1:8080/customuser/login/', 
         data={'email': email, 'password': password}
-        
     )
 
     if auth.status_code == 200:
