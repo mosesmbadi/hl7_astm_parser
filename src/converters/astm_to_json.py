@@ -9,7 +9,7 @@ def convert_astm_to_json(astm_message):
     results = []
     test_panel_name = ""
     lab_test_request = 1
-    test_panel_id = 1  # Replace this with logic to dynamically assign if needed
+    test_panel_id = 1
     record_id = 1
     patient_name  = ""
     patient_id = ""
@@ -19,6 +19,7 @@ def convert_astm_to_json(astm_message):
     facility_name = ""
     patient_birthday = ""
     patient_sex = ""
+    result = ""
 
     for segment in segments:
         # Skip empty segments which might be caused by consecutive '|'
@@ -42,16 +43,19 @@ def convert_astm_to_json(astm_message):
             patient_sex = fields[8] if len(fields) > 8 else "Unknown"
 
         elif fields[0] == 'O':
-            # Extract test panel information
             test_panel_name = fields[4] if len(fields) > 4 else "Unknown"
-            unit_of_measurement = fields[5] if len(fields) > 5 else "Unknown"
             sample_type = fields[15] if len(fields) > 15 else "Unknown"
 
+        elif fields[0] == "R":
+            unit_of_measurement = fields[4] if len(fields) > 4 else "Unknown"
+            test_completeion_date = fields[12] if len(fields) > 12 else "Unknown"
+            result = fields[8] if len(fields) > 8 else "Unknown"
 
 
         result_json = {
             "id": lab_test_request,
             "test_panel_name": test_panel_name,
+            "result": float(result) if result else None,
             "test_panel_id": test_panel_id,
             "record_id": record_id,
             "patient_name": patient_name,
