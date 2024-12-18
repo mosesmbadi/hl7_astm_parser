@@ -8,7 +8,6 @@ from converters.hl7_to_json import convert_hl7_to_json
 from coms.send_results_to_lis import send_to_lab_endpoints
 
 
-
 def main():
     ''''
     Will listen for incoming data, convert to hl7 then send to backend
@@ -17,7 +16,6 @@ def main():
     '''
     host = '127.0.0.1' 
     port = 9091
-    
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
         server_socket.bind((host, port))
@@ -42,9 +40,6 @@ def main():
                     print(f"Received data from {address}: {received_data}")
 
                     decoded_data = received_data.decode('utf-8')
-                    if decoded_data:
-                        print("Data Received")
-
                     # Check if incoming data is HL7
                     if decoded_data.startswith('MSH'):
                         convert_hl7_to_json(decoded_data)
@@ -60,9 +55,7 @@ def main():
                         print(f'Converted astm to json is: {astm_message_dict}')
                         send_to_lab_endpoints(astm_message_dict, 'astm')
 
-
                     # Check if incoming data is JSON
-                        
                     elif decoded_data.startswith('{'):
                         print("Checking if incoming data is JSON...")
                         try:

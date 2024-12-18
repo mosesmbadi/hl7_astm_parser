@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     # Sample JSON data to test
     sample_json = {
-        "equipment": 1,
+        "equipment": "Maglumi X3",
         "id":3,
         "test_panel_name":"",
         "result":"None",
