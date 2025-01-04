@@ -1,4 +1,5 @@
 from decouple import config
+from smb.SMBConnection import SMBConnection
 
 
 '''
@@ -39,15 +40,18 @@ def send_to_network_folder(
         print("An exception occurred in send_to_network_folder:")
         print(traceback.format_exc())
 
-def send_over_smb(data: str, host, username, password, shared_folder):
+def send_over_smb(data: str, host, username, password, shared_folder, filename):
     try:
         conn = SMBConnection(username, password, '', '')
         conn.connect(host)
 
         with conn:
-            with conn.open_file(shared_folder + '/worklist.txt', 'w') as file:
+            # Construct the full file path
+            full_filepath = f"{shared_folder}/{filename}" 
+
+            with conn.open_file(full_filepath, 'w') as file:
                 file.write(data)
-                print("Sending over SMB..." + data)
+                print(f"Sending over SMB to {full_filepath}: {data}")
 
         return True
     except Exception as e:
