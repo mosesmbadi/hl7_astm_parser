@@ -8,18 +8,10 @@ from settings.settings import EQUIPMENT_LIST
 
 EQUIPMENT_LIST = EQUIPMENT_LIST
 
+from coms.send_to_net_dir import send_to_network_folder
+
+
 # Get's JSON from incoming data, processes it then sends to the equipment in the json
-
-# This returns equipment name
-# def find_equipment_by_name(name):
-#     """Find equipment by name in the equipment list."""
-#     equipment_names = [equipment["name"] for equipment in EQUIPMENT_LIST]
-
-#     for equipment_name in equipment_names:
-#         if equipment_name == name:
-#             return equipment_name
-#     return None    
-
 # this return equipment object
 def find_equipment_by_name(name):
     """Find equipment by name in the equipment list."""
@@ -27,6 +19,7 @@ def find_equipment_by_name(name):
         if equipment["name"] == name:
             return equipment
     return None
+
 
 def process_json_data(json_data):
     """Process JSON data based on equipment type."""
@@ -38,13 +31,12 @@ def process_json_data(json_data):
         return
 
     equipment = find_equipment_by_name(equipment_name)
-    
     if not equipment:
         print(f"Error: Equipment '{equipment_name}' not found in the equipment list.")
         return
     
     equipment_data_type = equipment["data_type"] if equipment else None
-    print(f'Equipment found is: {equipment}')
+    equipment_com_mode = equipment["com_mode"] if equipment else None
 
     # Convert to JSON based on data type of the equipment
     if equipment_data_type == 'astm':
@@ -52,9 +44,16 @@ def process_json_data(json_data):
         converted_data = convert_json_to_astm(json_data)
         print(f"Converted JSON to ASTM : \n{converted_data}")
 
+    if equipment_data_type == 'astm' & equipment_com_mode == 'network_directory':
+        json_data = [json_data]
+        converted_data = convert_json_to_astm(json_data)
+        send_to_network_folder(converted_data)    
+
     elif equipment_data_type == 'hl7':
         converted_data = convert_json_to_hl7(json_data)
         print(f"Converted JSON to HL7 : \n{converted_data}")
+
+    
 
     else:
         print(f"Error: Unsupported data type '{equipment_data_type}' for equipment {equipment_name}.")
