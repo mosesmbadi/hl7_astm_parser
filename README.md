@@ -6,6 +6,16 @@ Will listen for incoming data, convert to hl7 then send to backend
 Purpose: Will run alongside main system, picks incoming lab results 
 from equipments, converts to json then sends to results endpoint
 
+## How to ru
+1. Clone the repo: git clone https://github.com/mosesmbadi/hl7_astm_parser
+2. Change directory: cd hl7_astm_parser
+3. Create a virtual environment: python3 -m venv venv
+4. Activate virtual environment: source venv/bin/activate (Linux) or venv\Scripts\activate (Windows)
+5. Install dependencies: pip install -r requirements.txt
+6. Run the program: python main.py
+
+From there, you can try send sample data using scripts in ./coms
+
 !["System Design"](docs/LIS_Interfacing_Chart.drawio.png)
 
 
