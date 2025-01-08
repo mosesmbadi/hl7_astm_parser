@@ -30,11 +30,6 @@ def send_hl7_message(host='127.0.0.1', port=9091):
         client_socket.sendall(hl7_message.encode('utf-8'))
         print("HL7 message sent successfully.")
 
-        # Wait for response
-        response = client_socket.recv(1024).decode('utf-8')
-        print("Received response:")
-        print(response)
-
     except Exception as e:
         print(f"Error sending HL7 message: {e}")
 
