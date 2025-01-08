@@ -6,7 +6,7 @@ Will listen for incoming data, convert to hl7 then send to backend
 Purpose: Will run alongside main system, picks incoming lab results 
 from equipments, converts to json then sends to results endpoint
 
-## How to ru
+## How to run
 1. Clone the repo: git clone https://github.com/mosesmbadi/hl7_astm_parser
 2. Change directory: cd hl7_astm_parser
 3. Create a virtual environment: python3 -m venv venv
@@ -16,13 +16,23 @@ from equipments, converts to json then sends to results endpoint
 
 From there, you can try send sample data using scripts in ./coms
 
+Testing Manually
+There are three scripts you can use to test manually
+
+1. `send_hl7.py` - This script sends a sample HL7 message to the HL7 endpoint
+2. `send_astm.py` - This script sends a sample ASTM message to the ASTM endpoint
+3. `send_json.py` - This script sends a sample JSON message to the JSON endpoint
+
+
 !["System Design"](docs/LIS_Interfacing_Chart.drawio.png)
 
 
-An endpoint might GET this reponse 
+An lab test request endpoint might GET us this reponse 
+    
     ```
     {
         "id": 1,
+        "equipment": "HumaCount 5D",
         "result": Null,
         "result_approved": false,
         "test_panel": 1,
@@ -40,7 +50,8 @@ An endpoint might GET this reponse
     }
     ```
 
-But from the incoming hl7 message, we're only interested in the fields below
+But from the incoming hl7 message from the equipment, we're only interested in the fields below:
+    
     ```
     {
         "id": 1,
@@ -50,9 +61,24 @@ But from the incoming hl7 message, we're only interested in the fields below
         "lab_test_request": 1
         
     }
-    ```    
+    ```   
 
-We can then send this as a PUT request as below
+Here's a sample HL7 message
+
+```
+"MSH|$~\&|A3CPC||||20130816154927||ORU_R01|SAMPLE001|P|2.5.1||||||UNICODE UTF-8|||"
+"PID|||PATIENT_ID001||Thomas A.||19621119000000|F"
+"NTE|1||Dr. Smith"
+"SPM|1|||WB|||||||P"
+"SAC|||SAMPLE001"
+"OBR||AWOS_ID001"
+"OBX|1|TX|WBC||14.80|10^9/l|5.00-10.00|H"
+"OBX|13|TX|MCHC||28.2|$g/dl|29.7-36.8|L|||P"
+"OBX|22|TX|P-LCR||30.78|$%|13.00-43.00||||P"
+```
+
+The HL7 will pass through the parser, get cnvirted to json, we extract the fields we need and send a PUT request to the results endpoint as shown below:  
+
     ```
     curl --request PUT \
     --url http://127.0.0.1:8080/lab/lab-test-requests-panel/1/ \
@@ -69,7 +95,8 @@ We can then send this as a PUT request as below
         }'
     ```
 
-and we get the updated response
+and we get the updated response from the LIS/HMIS
+   
     ```
     {
         "id": 1,
@@ -90,6 +117,7 @@ and we get the updated response
     }
     ```
 
+The same principle will apply to ASTM messages, but the format is different.
 
 Here's  a breakdown of an HL7 format
 ```MSH|$~\&|A3CPC||||20130816154927||ORU_R01|SAMPLE001|P|2.5.1||||||UNICODE UTF-8|||```
@@ -152,6 +180,8 @@ for segment in segments:
 
 
 The unique identifier that can be used across systems to sync records is the patient ID. From the generated json, record ID are different from tests sent, but the patient ID is the same.
+
+
 
 
 ## TODO

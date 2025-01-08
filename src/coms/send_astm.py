@@ -1,6 +1,10 @@
 import socket
 
 def send_astm_message(host='127.0.0.1', port=9091):
+    '''
+    Here we simulate an ASTM equipment sending results to the parser
+    which will convirt to json and send to lis as json
+    '''
     astm_message = (
         "H|\^&|||Sphera^V1.0|||||Host||P|1|20160920091032\n"
         "P|1||00004|Department1|Mustermann|Max|20000000|MALE|||||||||||||||||||||||||\n"
