@@ -1,6 +1,10 @@
 import socket
 
 def send_hl7_message(host='127.0.0.1', port=9091):
+    '''
+    Here we simulate an HL7 Equipment sending results to the parser
+    which will convirt to json and send to lis as json
+    '''
     # Sample HL7 data as a string (you would replace this with your actual HL7 data)
     # See README.md for more info
     # TODO: Test with HL7 from different equipment
@@ -25,6 +29,11 @@ def send_hl7_message(host='127.0.0.1', port=9091):
         # Send the HL7 message
         client_socket.sendall(hl7_message.encode('utf-8'))
         print("HL7 message sent successfully.")
+
+        # Wait for response
+        response = client_socket.recv(1024).decode('utf-8')
+        print("Received response:")
+        print(response)
 
     except Exception as e:
         print(f"Error sending HL7 message: {e}")

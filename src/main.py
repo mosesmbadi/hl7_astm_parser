@@ -8,6 +8,14 @@ from converters.hl7_to_json import convert_hl7_to_json
 from coms.send_results_to_lis import send_to_lab_endpoints
 
 
+def send_response(connection, message):
+    """Sends a response message back to the client."""
+    try:
+        connection.sendall(message.encode('utf-8'))
+    except Exception as e:
+        print(f"Error sending response: {e}")
+
+
 def main():
     ''''
     Will listen for incoming data, convert to hl7 then send to backend
@@ -40,6 +48,10 @@ def main():
                     print(f"Received data from {address}: {received_data}")
 
                     decoded_data = received_data.decode('utf-8')
+
+                    # Send acknowledgement
+                    send_response(connection, f"Data received: {decoded_data}")
+
                     # Check if incoming data is HL7
                     if decoded_data.startswith('MSH'):
                         convert_hl7_to_json(decoded_data)
