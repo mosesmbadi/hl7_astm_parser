@@ -27,8 +27,8 @@ EQUIPMENT_3 = {
     "id": 3,
     "ip_address": "127.0.0.1",
     "port": 9093,
-    "data_type": "hl7",
-    "name": "Maglumi X3",
+    "data_type": "astm",
+    "name": "Maglumi 800",
     "com_mode": "serial"  
 }
 

@@ -185,13 +185,30 @@ The unique identifier that can be used across systems to sync records is the pat
 
 
 ## TODO
-1. ~~ RECEIVE HL7 MESSAGE FROM EQUIPMENT CONVIRT TO JSON AND SEND TO RESULTS ENDPOINT~~
-2. ~~RECEIVE ASTM MESSAGE FROM EQUIPMENT CONVIRT TO JSON AND SEND TO RESULTS ENDPOINT~~
+1. Handle handshake request -response such us:
 
-3. RECEIVE JSON MESSAGE FROM HMIS CONVIRT TO HL7 AND SEND HL7 EQUIPMENT
-4. RECEIVE JSON MESSAGE FROM HMIS CONVIRT TO ASTM AND SEND ASTM EQUIPMENT
+```
+--><ENQ>
+<--<ACK>
+--><STX>
+<--<ACK>
+```
 
-5. STORE LIST OF HL7 EQUIPMENT IN A VARIABLE
-6. STORE LIST OF ASTM EQUIPMENT IN A VARIABLE
+This is extracted from message sent by Maglumi to LIS requesting the tests to be perfromed on the sample as shown below
 
+```
+    --><ENQ>
+    <--<ACK>
+    --><STX>
+    <--<ACK>
+    -->H|\^&||PSWD|Maglumi 600|||||Lis||P|E1394-97|20100323<CR>
+    Q|1|^1234567||ALL||||||||O<CR>
+    L|1|N<CR>
+    <--<ACK>
+    --><ETX>
+    <--<ACK>
+    --><EOT>
+    <--<ACK>
+```
 
+Refer to ./docs/Equipment Docs/Maglumi 600/ for more details
