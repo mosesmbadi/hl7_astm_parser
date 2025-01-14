@@ -1,11 +1,15 @@
 import signal
 import socket
 import json
+import logging
 from coms.send_to_equipment import process_json_data
 from converters.astm_to_json import convert_astm_to_json
 from converters.hl7_to_json import convert_hl7_to_json
 from coms.send_results_to_lis import send_to_lab_endpoints
 
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 def send_response(connection, message):
     """Sends a response message back to the client."""
@@ -13,35 +17,62 @@ def send_response(connection, message):
         connection.sendall(message.encode('utf-8'))
     except Exception as e:
         print(f"Error sending response: {e}")
-
+        
 
 def process_full_data(decoded_data, connection, address):
     """Process the full data from a source and send the appropriate response."""
-    # Send acknowledgement for the complete data from the source
-    send_response(connection, f"Data received: {decoded_data}")
-    
-    # Check if incoming data is HL7
-    if decoded_data.startswith('MSH'):
-        converted_data = convert_hl7_to_json(decoded_data)
-        print(f'Converted HL7 to JSON: {converted_data}')
+    try:
+        # Send acknowledgment for the complete data from the source
+        send_response(connection, f"Data received: {decoded_data}")
+        logger.info(f"Acknowledgment sent to {address}: {decoded_data}")
 
-        for test_result in converted_data:
-            send_to_lab_endpoints(converted_data, 'hl7')
+        # Check if incoming data is HL7
+        if decoded_data.startswith('MSH'):
+            logger.debug("Detected HL7 data.")
+            try:
+                converted_data = convert_hl7_to_json(decoded_data)
+                logger.info(f"Converted HL7 to JSON: {converted_data}")
 
-    # Check if incoming data is ASTM
-    elif decoded_data.startswith('H|'):
-        astm_message_dict = convert_astm_to_json(decoded_data)
-        print(f'Converted ASTM to JSON: {astm_message_dict}')
-        send_to_lab_endpoints(astm_message_dict, 'astm')
+                for test_result in converted_data:
+                    send_to_lab_endpoints(test_result, 'hl7')
+            except Exception as e:
+                logger.error(f"Error processing HL7 data: {e}", exc_info=True)
 
-    # Check if incoming data is JSON
-    elif decoded_data.startswith('{'):
-        print("Processing incoming JSON data...")
-        try:
-            json_data = json.loads(decoded_data)
-            process_json_data(json_data)
-        except json.JSONDecodeError as e:
-            print(f"Error decoding JSON data: {e}")
+        elif '{' in decoded_data:
+            logger.debug("Detected JSON data.")
+            try:
+                # Remove any non-JSON data before the JSON object
+                json_start = decoded_data.find('{')
+                if json_start != -1:
+                    json_part = decoded_data[json_start:]
+                else:
+                    json_part = decoded_data
+
+                # Split the JSON part into individual JSON objects
+                json_objects = []
+                while '{' in json_part:
+                    json_end = json_part.find('}') + 1
+                    json_object = json_part[:json_end]
+                    json_objects.append(json_object)
+                    json_part = json_part[json_end:]
+
+                # Attempt to load each JSON object
+                for json_object in json_objects:
+                    try:
+                        json_data = json.loads(json_object, strict=False)
+                        logger.info(f"Processing JSON data: {json_data}")
+                        process_json_data(json_data)
+                    except json.JSONDecodeError as e:
+                        logger.warning(f"Error decoding JSON data: {e}")
+
+            except json.JSONDecodeError as e:
+                logger.warning(f"Error decoding JSON data: {e}")
+
+            except json.JSONDecodeError as e:
+                logger.warning(f"Error decoding JSON data: {e}")
+
+    except Exception as e:
+        logger.error(f"Unexpected error processing JSON data: {e}", exc_info=True)
 
 
 def main():
@@ -49,7 +80,7 @@ def main():
     Will listen for incoming data, convert to HL7 then send to backend.
     Purpose: Picks incoming lab results from equipment, converts to JSON then sends to results endpoint.
     '''
-    host = '127.0.0.1' 
+    host = '192.168.100.56' 
     port = 9091
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:

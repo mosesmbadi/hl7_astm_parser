@@ -15,7 +15,10 @@ def convert_json_to_astm(json_data):
     # Proceed with the rest of the function logic
     if isinstance(json_data, list) and json_data:
         first_record = json_data[0]
-        header_segment = f"H|\\^&|||{first_record.get('facility_name', 'Unknown')}|||||||||{first_record.get('date_created', 'Unknown')}||||||||"
+        header_segment = (
+            f"H|\\^&|||{first_record.get('equipment', 'Unknown')}|||||||||"
+            f"{first_record.get('date_created', 'Unknown')}||||||||"
+        )
         astm_message.append(header_segment)
 
     for record in json_data:

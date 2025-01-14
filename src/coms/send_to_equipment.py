@@ -44,7 +44,7 @@ def process_json_data(json_data):
         converted_data = convert_json_to_astm(json_data)
         print(f"Converted JSON to ASTM : \n{converted_data}")
 
-    if equipment_data_type == 'astm' & equipment_com_mode == 'network_directory':
+    if equipment_data_type == 'astm' and equipment_com_mode == 'network_directory':
         json_data = [json_data]
         converted_data = convert_json_to_astm(json_data)
         send_to_network_folder(converted_data)    
@@ -52,12 +52,6 @@ def process_json_data(json_data):
     elif equipment_data_type == 'hl7':
         converted_data = convert_json_to_hl7(json_data)
         print(f"Converted JSON to HL7 : \n{converted_data}")
-
-    
-
-    else:
-        print(f"Error: Unsupported data type '{equipment_data_type}' for equipment {equipment_name}.")
-        return
 
     # Send converted data to the equipment
     send_to_equipment(converted_data, equipment_data_type)
