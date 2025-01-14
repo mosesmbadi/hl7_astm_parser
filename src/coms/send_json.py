@@ -31,26 +31,61 @@ def send_sample_json(host, port, sample_data):
 
 if __name__ == "__main__":
     # Server details
-    HOST = '127.0.0.1'  # Server host
+    HOST = '192.168.100.56'  # Server host
     PORT = 9091         # Server port
 
     # Sample JSON data to test
-    sample_json = {
-        "equipment": "Maglumi 800",
-        "id":3,
-        "test_panel_name":"CA123",
-        "result":"None",
-        "test_panel_id":3,
-        "record_id":3,
-        "patient_name":"Mustermann",
-        "patient_id":"00004",
-        "patient_sex":"MALE",
-        "sample_type":"",
-        "unit_of_measurement":"",
-        "date_created":"20160920091032",
-        "facility_name":"Sphera^V1.0",
-        "patient_birthday":"20000000"
+    sample_json = [
+    {
+        "id": 3,
+        "test_panel_name": "CA123",
+        "result": "None",
+        "test_panel_id": 3,
+        "record_id": 3,
+        "patient_name": "Mustermann",
+        "patient_id": "00004",
+        "patient_sex": "MALE",
+        "sample_type": "",
+        "unit_of_measurement": "",
+        "date_created": "20160920091032",
+        "facility_name": "Sphera^V1.0",
+        "patient_birthday": "20000000",
+        "equipment": "Maglumi 800"
+    },
+    {
+        "id": 4,
+        "test_panel_name": "RBC",
+        "result": "14.8",
+        "test_panel_id": 4,
+        "record_id": 4,
+        "patient_name": "Mustermann",
+        "patient_id": "00004",
+        "patient_sex": "MALE",
+        "sample_type": "Blood",
+        "unit_of_measurement": "10^6/μL",
+        "date_created": "20160920091545",
+        "facility_name": "Sphera^V1.0",
+        "patient_birthday": "20000000",
+        "equipment": "Maglumi 800"
+    },
+    {
+        "id": 5,
+        "test_panel_name": "HbA1c",
+        "result": "5.7",
+        "test_panel_id": 5,
+        "record_id": 5,
+        "patient_name": "Mustermann",
+        "patient_id": "00004",
+        "patient_sex": "MALE",
+        "sample_type": "Blood",
+        "unit_of_measurement": "%",
+        "date_created": "20160920092000",
+        "facility_name": "Sphera^V1.0",
+        "patient_birthday": "20000000",
+        "equipment": "Maglumi 800"
     }
+]
+
 
     # Send the JSON data
     send_sample_json(HOST, PORT, sample_json)

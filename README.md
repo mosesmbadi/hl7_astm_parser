@@ -212,3 +212,6 @@ This is extracted from message sent by Maglumi to LIS requesting the tests to be
 ```
 
 Refer to ./docs/Equipment Docs/Maglumi 600/ for more details
+
+Use ASTM 1397 and 13394 for reference
+Use Hl7 2.5.1 for reference
