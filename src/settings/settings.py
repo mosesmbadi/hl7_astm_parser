@@ -7,8 +7,8 @@ is needed, the auth endpoint.
 
 EQUIPMENT_1 = {
     "id": 1,
-    "ip_address": "127.0.0.1",
-    "port": 9091,
+    "ip_address": "172.16.4.33",
+    "port": 39266,
     "data_type": "hl7",
     "name": "HumaCount 5D",
     "com_mode": "tcp"
