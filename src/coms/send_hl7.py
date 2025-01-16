@@ -1,6 +1,6 @@
 import socket
 
-def send_hl7_message(host='127.0.0.1', port=9091):
+def send_hl7_message(host='192.168.100.56', port=9091):
     '''
     Here we simulate an HL7 Equipment sending results to the parser
     which will convirt to json and send to lis as json
@@ -9,15 +9,37 @@ def send_hl7_message(host='127.0.0.1', port=9091):
     # See README.md for more info
     # TODO: Test with HL7 from different equipment
     hl7_message = (
-        "MSH|$~\&|A3CPC||||20130816154927||ORU_R01|SAMPLE001|P|2.5.1||||||UNICODE UTF-8|||"
-        "PID|||PATIENT_ID001||Thomas A.||19621119000000|F"
-        "NTE|1||Dr. Smith"
-        "SPM|1|||WB|||||||P"
-        "SAC|||SAMPLE001"
-        "OBR||AWOS_ID001"
-        "OBX|1|TX|WBC||14.80|10^9/l|5.00-10.00|H"
-        "OBX|13|TX|MCHC||28.2|$g/dl|29.7-36.8|L|||P"
-        "OBX|22|TX|P-LCR||30.78|$%|13.00-43.00||||P"
+        "b'\\x0bMSH|^~\\&|DF5x|Dymind|||20250116101949||ORU^R01|20241024_152427_617|P|2.3.1||||||UNICODE\\r'"
+        "PID|1\\rPV1|1\\r"
+        "OBR|1||5|01001^Automated Count^99MRC||20241024152325|20241024152427|||||||20241024152325||||||||20250116092511||HM||||admin||||admin\\r"
+        "OBX|1|IS|02001^Take Mode^99MRC||O||||||F\\r"
+        "OBX|2|IS|02002^Blood Mode^99MRC||W||||||F\\rOBX|3|IS|02003^Test Mode^99MRC||CBC+DIFF||||||F\\rOBX|4|NM|30525-0^Age^LN|||yr|||||F\\r"
+        "OBX|5|IS|09001^Remark^99MRC||||||||F\\rOBX|6|IS|03001^Ref Group^99MRC||General||||||F\\r"
+        "OBX|7|NM|6690-2^WBC^LN||0.01|10*9/L|4.00-10.00|L~A|||F\\rOBX|8|NM|770-8^NEU%^LN||**.*|%|50.0-70.0|~A|||F\\r"
+        "OBX|9|NM|736-9^LYM%^LN||**.*|%|20.0-40.0|~A|||F\\rOBX|10|NM|5905-5^MON%^LN||**.*|%|3.0-12.0|~A|||F\\r"
+        "OBX|11|NM|713-8^EOS%^LN||**.*|%|0.5-5.0|~A|||F\\rOBX|12|NM|706-2^BAS%^LN||**.*|%|0.0-1.0|~A|||F\\r"
+        "OBX|13|NM|751-8^NEU#^LN||***.**|10*9/L|2.00-7.00|~A|||F\\r"
+        "OBX|14|NM|731-0^LYM#^LN||***.**|10*9/L|0.80-4.00|~A|||F\\r"
+        "OBX|15|NM|742-7^MON#^LN||***.**|10*9/L|0.12-1.20|~A|||F\\r"
+        "OBX|16|NM|711-2^EOS#^LN||***.**|10*9/L|0.02-0.50|~A|||F\\r"
+        "OBX|17|NM|704-7^BAS#^LN||***.**|10*9/L|0.00-0.10|~A|||F\\r"
+        "OBX|18|NM|26477-0^*ALY#^LN||***.**|10*9/L|0.00-0.20|~A|||F\\r"
+        "OBX|19|NM|13046-8^*ALY%^LN||**.*|%|0.0-2.0|~A|||F\\r"
+        "OBX|20|NM|11001^*LIC#^99MRC||***.**|10*9/L|0.00-0.20|~A|||F\\r"
+        "OBX|21|NM|11002^*LIC%^99MRC||**.*|%|0.0-2.5|~A|||F\\r"
+        "OBX|22|NM|789-8^RBC^LN||0.00|10*6/uL|3.50-5.50|L~A|||F\\r"
+        "OBX|23|NM|718-7^HGB^LN||0.0|g/dL|11.0-16.0|L~A|||F\\r"
+        "OBX|24|NM|4544-3^HCT^LN||0.0|%|37.0-54.0|L~A|||F\\r"
+        "OBX|25|NM|787-2^MCV^LN||***.*|fL|80.0-100.0|~A|||F\\r"
+        "OBX|26|NM|785-6^MCH^LN||***.*|pg|27.0-34.0|~A|||F\\r"
+        "OBX|27|NM|786-4^MCHC^LN||****|g/L|320-360|~A|||F\\r"
+        "OBX|28|NM|788-0^RDW-CV^LN||**.*|%|11.0-16.0|~A|||F\\r"
+        "OBX|29|NM|21000-5^RDW-SD^LN||***.*|fL|35.0-56.0|~A|||F\\r"
+        "OBX|30|NM|777-3^PLT^LN||0|10*3/uL|100-300|L~A|||F\\r"
+        "OBX|31|NM|32623-1^MPV^LN||**.*|fL|6.5-12.0|~A|||F\\r"
+        "OBX|32|NM|32207-3^PDW^LN||**.*|fL|9.0-17.0|~A|||F\\r"
+        "OBX|33|NM|11003^PCT^99MRC||.***|%|0.108-0.282|~A|||Fr\\x1c\\r'"
+
     )
 
     try:
@@ -42,40 +64,33 @@ if __name__ == "__main__":
 
 
 # Below is an example HL7 message from HumaCount 5D
-# MSH|^~\&|BC-
-# 6800|Mindray|||20140927131905||ORU^R01|2849dc32654641d2b5c8ae229cf4f061|P|2.3.1||||||UNICODE
-# PID|1||05012006^^^^MR||^Miller Andrew||19991001000000|Male
-# PV1|1|Inpatient|Internal medicine^1^2|||||||||||||||||Self-paid
-# OBR|1||5|00001^Automated Count^99MRC||20140918091000|20140918105930|||Dr.
-# Wang||||20140918103000||||||||||HM||||||||develop
-# OBX|1|IS|08001^Loading Mode^99MRC||O||||||F
-# OBX|2|IS|08002^Blood Mode^99MRC||W||||||F
-# OBX|3|IS|08003^Test Mode^99MRC||CBC+DIFF||||||F
-# OBX|4|NM|30525-0^Age^LN||15|yr|||||F
-# OBX|5|IS|01001^Remark^99MRC||||||||F
-# OBX|6|IS|01002^Ref Group^99MRC||Adult male||||||F
-# OBX|7|NM|6690-2^WBC^LN||5.51|10*9/L|4.00-10.00||||F
-# OBX|8|NM|770-8^NEU%^LN||66.1|%|50.0-70.0||||F
-# OBX|9|NM|736-9^LYM%^LN||28.1|%|20.0-40.0||||F
-# OBX|10|NM|5905-5^MON%^LN||4.4|%|3.0-12.0||||F
-# OBX|11|NM|713-8^EOS%^LN||1.2|%|0.5-5.0||||F
-# OBX|12|NM|706-2^BAS%^LN||0.2|%|0.0-1.0||||F
-# OBX|13|NM|751-8^NEU#^LN||3.65|10*9/L|2.00-7.00||||F
-# OBX|14|NM|731-0^LYM#^LN||1.55|10*9/L|0.80-4.00||||F
-# OBX|15|NM|742-7^MON#^LN||0.24|10*9/L|0.12-1.20||||F
-# OBX|16|NM|711-2^EOS#^LN||0.06|10*9/L|0.02-0.50||||F
-# OBX|17|NM|704-7^BAS#^LN||0.01|10*9/L|0.00-0.10||||F
-# OBX|18|NM|26477-0^*ALY#^LN||0.02|10*9/L|0.00-0.20||||F
-# OBX|19|NM|13046-8^*ALY%^LN||0.3|%|0.0-2.0||||F
-# OBX|20|NM|10000^*LIC#^99MRC||0.00|10*9/L|0.00-0.20||||F
-# OBX|21|NM|10001^*LIC%^99MRC||0.0|%|0.0-2.5||||F
-# OBX|22|NM|789-8^RBC^LN||4.57|10*12/L|4.00-5.50||||F
-# OBX|23|NM|718-7^HGB^LN||156|g/L|120-160||||F
-# OBX|24|NM|4544-3^HCT^LN||47.8|%|40.0-54.0||||F
-# OBX|44|ED|15200^WBC DIFF Scattergram. LS-MS BMP^99MRC||^Image^BMP^Base64^……Diff scattergram bitmap
-# LS-MS data…||||||F
-# OBX|45|ED|15201^WBC DIFF Scattergram. LS-HS BMP^99MRC||^Image^BMP^Base64^……Diff scattergram bitmap
-# LS-HS data…||||||F
-# OBX|46|ED|15202^WBC DIFF Scattergram. HS-MS BMP^99MRC||^Image^BMP^Base64^……Diff scattergram bitmap
-# HS-MS data…||||||F
-# OBR|2||5|00002^Manual Count^99MRC
+# b'\x0bMSH|^~\\&|DF5x|Dymind|||20250116101949||ORU^R01|20241024_152427_617|P|2.3.1||||||UNICODE\r
+# PID|1\rPV1|1\r
+# OBR|1||5|01001^Automated Count^99MRC||20241024152325|20241024152427|||||||20241024152325||||||||20250116092511||HM||||admin||||admin\r
+# OBX|1|IS|02001^Take Mode^99MRC||O||||||F\r
+# OBX|2|IS|02002^Blood Mode^99MRC||W||||||F\rOBX|3|IS|02003^Test Mode^99MRC||CBC+DIFF||||||F\rOBX|4|NM|30525-0^Age^LN|||yr|||||F\r
+# OBX|5|IS|09001^Remark^99MRC||||||||F\rOBX|6|IS|03001^Ref Group^99MRC||General||||||F\r
+# OBX|7|NM|6690-2^WBC^LN||0.01|10*9/L|4.00-10.00|L~A|||F\rOBX|8|NM|770-8^NEU%^LN||**.*|%|50.0-70.0|~A|||F\r
+# OBX|9|NM|736-9^LYM%^LN||**.*|%|20.0-40.0|~A|||F\rOBX|10|NM|5905-5^MON%^LN||**.*|%|3.0-12.0|~A|||F\r
+# OBX|11|NM|713-8^EOS%^LN||**.*|%|0.5-5.0|~A|||F\rOBX|12|NM|706-2^BAS%^LN||**.*|%|0.0-1.0|~A|||F\r
+# OBX|13|NM|751-8^NEU#^LN||***.**|10*9/L|2.00-7.00|~A|||F\r
+# OBX|14|NM|731-0^LYM#^LN||***.**|10*9/L|0.80-4.00|~A|||F\r
+# OBX|15|NM|742-7^MON#^LN||***.**|10*9/L|0.12-1.20|~A|||F\r
+# OBX|16|NM|711-2^EOS#^LN||***.**|10*9/L|0.02-0.50|~A|||F\r
+# OBX|17|NM|704-7^BAS#^LN||***.**|10*9/L|0.00-0.10|~A|||F\r
+# OBX|18|NM|26477-0^*ALY#^LN||***.**|10*9/L|0.00-0.20|~A|||F\r
+# OBX|19|NM|13046-8^*ALY%^LN||**.*|%|0.0-2.0|~A|||F\r
+# OBX|20|NM|11001^*LIC#^99MRC||***.**|10*9/L|0.00-0.20|~A|||F\r
+# OBX|21|NM|11002^*LIC%^99MRC||**.*|%|0.0-2.5|~A|||F\r
+# OBX|22|NM|789-8^RBC^LN||0.00|10*6/uL|3.50-5.50|L~A|||F\r
+# OBX|23|NM|718-7^HGB^LN||0.0|g/dL|11.0-16.0|L~A|||F\r
+# OBX|24|NM|4544-3^HCT^LN||0.0|%|37.0-54.0|L~A|||F\r
+# OBX|25|NM|787-2^MCV^LN||***.*|fL|80.0-100.0|~A|||F\r
+# OBX|26|NM|785-6^MCH^LN||***.*|pg|27.0-34.0|~A|||F\r
+# OBX|27|NM|786-4^MCHC^LN||****|g/L|320-360|~A|||F\r
+# OBX|28|NM|788-0^RDW-CV^LN||**.*|%|11.0-16.0|~A|||F\r
+# OBX|29|NM|21000-5^RDW-SD^LN||***.*|fL|35.0-56.0|~A|||F\r
+# OBX|30|NM|777-3^PLT^LN||0|10*3/uL|100-300|L~A|||F\r
+# OBX|31|NM|32623-1^MPV^LN||**.*|fL|6.5-12.0|~A|||F\r
+# OBX|32|NM|32207-3^PDW^LN||**.*|fL|9.0-17.0|~A|||F\r
+# OBX|33|NM|11003^PCT^99MRC||.***|%|0.108-0.282|~A|||F\r\x1c\r

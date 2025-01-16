@@ -21,7 +21,7 @@ def convert_json_to_hl7(json_data):
     # Process each record
     for record in json_data:
         # Create the MSH segment
-        msh_segment = f"MSH|^~\\&|Chem-Labs|{record.get('facility_name', 'Unknown')}|||||ORU^R01|||2.5"
+        msh_segment = f"MSH|^~\\&|Easy-Med|{record.get('facility_name', 'Unknown')}|||||ORU^R01|||2.5"
         hl7_message.append(msh_segment)
 
         # Create the PID segment
