@@ -10,7 +10,6 @@ from decouple import config
 import ast
 
 # Helper to parse dict-like strings from .env
-
 def parse_equipment(prefix):
     return {
         "id": int(config(f"{prefix}_ID")),
