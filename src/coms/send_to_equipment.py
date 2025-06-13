@@ -5,7 +5,7 @@ from converters.json_to_hl7 import convert_json_to_hl7
 
 from settings.settings import EQUIPMENT_LIST
 
-
+# TODO: i don't know why I wrote this, but it's ugky. To be fixed.
 EQUIPMENT_LIST = EQUIPMENT_LIST
 
 
