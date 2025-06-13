@@ -3,6 +3,8 @@
 This file contains settings for the Laboratory
 i.e The Equipment they have, LIS endpoint and if authentication
 is needed, the auth endpoint.
+
+NB: The Equipment name should match what we're getting fom the json
 """
 
 EQUIPMENT_1 = {
@@ -26,10 +28,20 @@ EQUIPMENT_2 = {
 EQUIPMENT_3 = { 
     "id": 3,
     "ip_address": "127.0.0.1",
-    "port": 9093,
+    "port": 9095,
     "data_type": "astm",
-    "name": "Maglumi 800",
-    "com_mode": "serial"  
+    "name": "Maglumi 600",
+    "com_mode": "tcp"  
+}
+
+
+EQUIPMENT_3 = { 
+    "id": 3,
+    "ip_address": "192.168.100.46", # docker host private ip if you're running the parser in docker
+    "port": 9095,
+    "data_type": "astm",
+    "name": "Maglumi X3",
+    "com_mode": "tcp"  
 }
 
 EQUIPMENT_LIST = [EQUIPMENT_1, EQUIPMENT_2, EQUIPMENT_3]
