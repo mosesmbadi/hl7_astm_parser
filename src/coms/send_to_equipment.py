@@ -8,7 +8,7 @@ from settings.settings import EQUIPMENT_LIST
 
 EQUIPMENT_LIST = EQUIPMENT_LIST
 
-from coms.send_to_net_dir import send_to_network_folder
+# from coms.send_to_net_dir import send_to_network_folder
 
 
 # Get's JSON from incoming data, processes it then sends to the equipment in the json
@@ -44,10 +44,10 @@ def process_json_data(json_data):
         converted_data = convert_json_to_astm(json_data)
         print(f"Converted JSON to ASTM : \n{converted_data}")
 
-    if equipment_data_type == 'astm' & equipment_com_mode == 'network_directory':
-        json_data = [json_data]
-        converted_data = convert_json_to_astm(json_data)
-        send_to_network_folder(converted_data)    
+    # if equipment_data_type == 'astm' & equipment_com_mode == 'network_directory':
+    #     json_data = [json_data]
+    #     converted_data = convert_json_to_astm(json_data)
+    #     send_to_network_folder(converted_data)    
 
     elif equipment_data_type == 'hl7':
         converted_data = convert_json_to_hl7(json_data)
