@@ -14,6 +14,3 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 EXPOSE 9091
-
-# Set default command (adjust as needed)
-CMD ["python", "src/main.py"]
