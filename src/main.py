@@ -2,6 +2,7 @@ import signal
 import socket
 import logging
 import threading
+from decouple import config
 from utils.utils import handle_client_connection
 
 logger = logging.getLogger(__name__)
@@ -9,8 +10,8 @@ logging.basicConfig(level=logging.INFO)
 
 
 def main():
-    host = '172.16.5.253'
-    port = 9091
+    host = config('HOST', default='0.0.0.0')
+    port = config('HOST_PORT', default=9091, cast=int)
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
         server_socket.bind((host, port))

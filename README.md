@@ -225,3 +225,20 @@ Refer to ./docs/Equipment Docs/Maglumi 600/ for more details
 
 Use ASTM 1397 and 13394 for reference
 Use Hl7 2.5.1 for reference
+
+
+
+## Build and Push to Hub
+Push to hub:
+```bash
+docker build -t mosesmbadi/hl7-astm-parser:latest .
+docker push mosesmbadi/hl7-astm-parser:latest
+```
+
+
+docker run -d --name hl7-astm-parser --restart unless-stopped \
+  -p 9091:9091 \
+  -e BACKEND_URL=http://<easymed-host>:8080 \
+  -e BACKEND_USERNAME=admin@mail.com \
+  -e BACKEND_PASSWORD=... \
+  mosesmbadi/hl7-astm-parser:latest

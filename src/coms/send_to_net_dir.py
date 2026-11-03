@@ -8,10 +8,10 @@ Let's try to send test request in ASTM format to HumaStar 100/200 (or pretty muc
 '''
 def send_to_network_folder(
         data: str,
-        host=config("NETWORK_EQUIPMENT_IP"),
-        username= config("NETWORK_USERNAME"),
-        password= config("NETWORK_USER_PASSWORD"),
-        shared_folder= config("NETWORK_INPUT_WORKLIST_FILE"),
+        host=config("NETWORK_EQUIPMENT_IP", default=""),
+        username= config("NETWORK_USERNAME", default=""),
+        password= config("NETWORK_USER_PASSWORD", default=""),
+        shared_folder= config("NETWORK_INPUT_WORKLIST_FILE", default=""),
         ):
     try:
         if not data:
