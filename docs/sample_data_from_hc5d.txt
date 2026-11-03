@@ -48,3 +48,24 @@ Traceback (most recent call last):
     "result": float(result_value) if result_value else None,
               ^^^^^^^^^^^^^^^^^^^
 ValueError: could not convert string to float: 'O'
+
+
+
+
+MSH|^~\&|DH56|Dymind|||20140927104252||
+ORU^R01|d51b54aca4064d20be8084f00850585f|P|2.3.1||||||UNICODE
+PID|1||05012006^^^^MR||^Zhang San||19991001000000|Male
+PV1|1|Inpatient|Internal medicine^1^2|||||||||||||||||Self-paid 
+OBR|1||5|00001^Automated Count^99MRC||20140918091000|20140918105930|||Dr.Wang||||20140918103000||||||||||HM||||||||develop
+OBX|1|IS|08001^Loading Mode^99MRC||O||||||F
+OBX|2|IS|08002^Blood Mode^99MRC||W||||||F
+OBX|3|IS|08003^Test Mode^99MRC||CBC+DIFF||||||F
+OBX|4|NM|30525- 0^Age^LN|||yr|||||F
+OBX|5|IS|01001^Remark^99MRC||||||||F
+OBX|6|IS|01002^Ref Group^99MRC||General||||||F
+OBX|7|NM|6690-2^WBC^LN||5.51|10*9/L|4.00-10.00||||F
+OBX|8|NM|770-8^NEU%^LN||66.1|%|50.0-70.0||||F
+OBX|9|NM|736-9^LYM%^LN||28.1|%|20.0-40.0||||F
+OBX|10|NM|5905-5^MON%^LN||4.4|%|3.0-12.0||||F
+OBX|11|NM|713-8^EOS%^LN||1.2|%|0.5-5.0||||F
+OBX|12|NM|706-2^BAS%^LN||0.2|%|0.0-1.0||||F

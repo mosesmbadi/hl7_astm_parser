@@ -149,6 +149,16 @@ sample ID.
 OBR||AWOS_ID001
 1. AWOS_ID001 is a unique ID, which refers to a record of the EMR.
 
+```OBR|1||5|01001^Automated Count^99MRC||20241024152325|20241024152427|||||||20241024152325||||||||20250116092511||HM||||admin||||admin\r```
+1. 1 is the ID of the OBR field.
+2. 5 is the set ID of the OBR field.
+3. 01001^Automated Count^99MRC is the observation identifier.
+4. 20241024152325 is the observation date/time.
+5. 20241024152427 is the observation end date/time.
+6. 20241024152325 is the collection date/time.
+7. 20250116092511 is the result date/time.
+8. HM is the result status.
+
 ```OBX|1|TX|WBC||14.80|10^9/l|5.00-10.00|H```
 1. 1 is the ID of the OBX field. It is an increscent value.
 2. TX is the value type. It means text data.

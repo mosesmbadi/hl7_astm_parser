@@ -1,58 +1,69 @@
+import re
+
+
+def component(field, index):
+    """Returns the ^-separated component at index, or the whole field if it has none."""
+    parts = field.split('^')
+    return parts[index] if len(parts) > index else parts[0]
+
+
+def is_reportable(value):
+    # Analyzers send '**.*' style masks when a value couldn't be measured
+    return bool(value) and not re.fullmatch(r'[*.]+', value)
+
+
 def convert_hl7_to_json(hl7_str):
-    # Add explicit segment delimiters if missing (for testing purposes)
-    hl7_str = hl7_str.replace("PID", "\rPID").replace("NTE", "\rNTE").replace("SPM", "\rSPM") \
-                     .replace("SAC", "\rSAC").replace("OBR", "\rOBR").replace("OBX", "\rOBX")
-    
-    # Split the HL7 message by segments
-    segments = hl7_str.strip().split('\r')
-    
-    # Initialize variables
+    """
+    Converts an HL7 ORU message into one result per OBX.
+    sample_id is what the backend uses to find the patient's panels.
+    """
+    segments = re.split(r'[\r\n]+', hl7_str.strip())
+
     results = []
-    test_panel_name = ""
-    lab_test_request = 1
-    test_panel_id = 1  # Replace this with logic to dynamically assign if needed
-    record_id = 1
-    patient_name  = ""
+    sample_id = ""
+    patient_name = ""
     patient_id = ""
-    
-    # Parse segments
+
     for segment in segments:
-        fields = segment.split('|')
+        fields = segment.strip().split('|')
 
-        if fields[0] == 'MSH':
-            # Extract facility name or any other data from MSH if needed
-            facility_name = fields[2] if len(fields) > 2 else "Unknown"
-        
-        elif fields[0] == 'PID':
-            # Extract patient information
-            patient_id = fields[3] if len(fields) > 3 else "Unknown"
-            patient_name = fields[5] if len(fields) > 5 else "Unknown"
-            print(f"Patient ID: {patient_id}, Name: {patient_name}")
-        
+        if fields[0] == 'PID':
+            patient_id = fields[3] if len(fields) > 3 else ""
+            patient_name = fields[5] if len(fields) > 5 else ""
+
+        elif fields[0] == 'SAC':
+            # SAC-3 container identifier holds the sample ID on HumaCount 30TS
+            if len(fields) > 3 and fields[3]:
+                sample_id = sample_id or fields[3]
+
         elif fields[0] == 'OBR':
-            # Get the test panel name
-            test_panel_name = fields[4] if len(fields) > 4 else "Unknown"
-            print(f"Test Panel Name: {test_panel_name}")
-        
-        elif fields[0] == 'OBX':
-            # "OBX|13|TX|MCHC||28.2|$g/dl|29.7-36.8|L|||P"
-            # Process OBX segments for test results
-            print(f'Test Panel Name, Field[3]: {fields[3]}') #MCHC
-            test_code = fields[3] if len(fields) > 3 else "Unknown"
-            result_value = fields[5] if len(fields) > 5 else None
-            test_panel_name = fields[3] if len(fields) > 4 else "Unknown"
+            # OBR-3 filler order number holds the sample ID on Dymind/HumaCount 5D,
+            # OBR-2 placer order number is the fallback
+            if len(fields) > 3 and fields[3]:
+                sample_id = fields[3]
+            elif len(fields) > 2 and fields[2]:
+                sample_id = sample_id or fields[2]
 
-            # Create JSON object for each result
-            result_json = {
-                "id": record_id,
-                "result": float(result_value) if result_value else None,
-                "test_panel": test_panel_id,
-                "test_panel_name": test_panel_name,
-                "lab_test_request": lab_test_request,
+        elif fields[0] == 'OBX':
+            # "OBX|7|NM|6690-2^WBC^LN||0.01|10*9/L|4.00-10.00|L~A|||F"
+            value_type = fields[2] if len(fields) > 2 else ""
+            # IS rows are analyzer settings (Take Mode, Blood Mode...), not results
+            if value_type not in ('NM', 'TX', 'ST'):
+                continue
+
+            test_code = component(fields[3], 1) if len(fields) > 3 else ""
+            result_value = fields[5] if len(fields) > 5 else ""
+            if not test_code or not is_reportable(result_value):
+                continue
+
+            results.append({
+                "sample_id": sample_id,
+                "test_code": test_code,
+                "result": result_value,
+                "unit_of_measurement": fields[6] if len(fields) > 6 else "",
+                "reference_range": fields[7] if len(fields) > 7 else "",
                 "patient_name": patient_name,
                 "patient_id": patient_id
-            }
-            results.append(result_json)
-            record_id += 1  # Increment record ID for each test result
-    
+            })
+
     return results

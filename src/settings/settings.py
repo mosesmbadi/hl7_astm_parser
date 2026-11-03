@@ -38,4 +38,12 @@ BACKEND_USERNAME= "admin@mail.com"
 BACKEND_PASSWORD = "admin"
 
 RESULTS_ENDPOINT = "http://127.0.0.1:8080/lab/lab-test-requests-panel/"
+# Panels for a sample, looked up by the sample code the analyzer sends back
+SAMPLE_PANELS_ENDPOINT = "http://127.0.0.1:8080/lab/labtestrequestpanels/sample/"
 AUTH = "http://127.0.0.1:8080/customuser/login/"
+
+# Analyzer test code -> backend test panel name, for codes that differ.
+# Codes not listed here are matched to the panel name as-is (case-insensitive).
+TEST_CODE_MAP = {
+    # "CREA": "Creatinine",
+}

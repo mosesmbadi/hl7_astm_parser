@@ -1,12 +1,27 @@
 import socket
 
-def send_astm_message(host='127.0.0.1', port=9091):
+ENQ, ACK, STX, ETX, EOT = b'\x05', b'\x06', b'\x02', b'\x03', b'\x04'
+
+
+def build_frame(frame_number, text):
+    """<STX>FN text<ETX>C1C2<CR><LF>, checksum covers FN through ETX"""
+    body = str(frame_number % 8).encode() + text.encode('utf-8') + ETX
+    checksum = f"{sum(body) % 256:02X}".encode()
+    return STX + body + checksum + b'\r\n'
+
+
+def expect_ack(client_socket, step):
+    reply = client_socket.recv(1)
+    if reply != ACK:
+        raise RuntimeError(f"Expected ACK after {step}, got {reply!r}")
+
+def send_astm_message(host='192.168.100.46', port=9091):
     '''
     Here we simulate an ASTM equipment sending results to the parser
     which will convirt to json and send to lis as json
     '''
     astm_message = (
-        "H|\^&|||Sphera^V1.0|||||Host||P|1|20160920091032\n"
+        "H|\\^&|||Sphera^V1.0|||||Host||P|1|20160920091032\n"
         "P|1||00004|Department1|Mustermann|Max|20000000|MALE|||||||||||||||||||||||||\n"
         "C|1|||\n"
         "O|1|||Alb|False||||||||||Serum|||||||||||||||\n"
@@ -52,12 +67,19 @@ def send_astm_message(host='127.0.0.1', port=9091):
         client_socket.connect((host, port))
         print(f"Connected to {host}:{port}")
 
-        # Send the HL7 message
-        client_socket.sendall(astm_message.encode('utf-8'))
-        print("HL7 message sent successfully.")
+        client_socket.settimeout(10)
+
+        # ASTM E1381: ENQ, one frame per record, EOT; each step is ACKed
+        client_socket.sendall(ENQ)
+        expect_ack(client_socket, "ENQ")
+        for frame_number, record in enumerate(astm_message.strip().split("\n"), start=1):
+            client_socket.sendall(build_frame(frame_number, record + "\r"))
+            expect_ack(client_socket, f"frame {frame_number}")
+        client_socket.sendall(EOT)
+        print("ASTM message sent successfully.")
 
     except Exception as e:
-        print(f"Error sending HL7 message: {e}")
+        print(f"Error sending ASTM message: {e}")
 
     finally:
         client_socket.close()
