@@ -242,3 +242,49 @@ docker run -d --name hl7-astm-parser --restart unless-stopped \
   -e BACKEND_USERNAME=admin@mail.com \
   -e BACKEND_PASSWORD=... \
   mosesmbadi/hl7-astm-parser:latest
+
+```bash
+# Spooled results must survive the container being recreated
+docker run ... -v lis_spool:/app/spool ...
+```
+
+
+## How results reach EasyMed
+
+The parser only speaks the analyzers' protocols. For each sample in a
+message it posts the analyzer's raw results to EasyMed's
+`/lab/analyzer-messages/`:
+
+```json
+{"sender": "HumaCount 30TS", "sample_code": "DDLR00012-2026",
+ "patient_name": "RUKIA OSMAN", "raw_message": "MSH|...",
+ "results": [{"code": "WBC", "value": "5.39", "unit": "10^9/l",
+              "flag": "", "reference_range": "5.00-11.60"}]}
+```
+
+EasyMed does the matching:
+
+- **Which analyzer**: `sender` (HL7 MSH-3, ASTM H-5) against each lab
+  equipment's *Sender ID*.
+- **Which test**: the analyzer's code through that equipment's *Test
+  mappings* (Lab Settings -> Lab Equipments -> Test mappings). A code named
+  exactly like a requested panel is mapped automatically the first time.
+- **Which patient**: `sample_code`, the EasyMed sample code
+  (`DDLR00012-2026`) entered or scanned on the analyzer. Where it is read
+  from: HL7 SPM-2.1 (Maglumi X8), SAC-3 (HumaCount), OBR-3 (Dymind), OBR-2,
+  then MSH-10 for HumaCount only; ASTM O-3 (Maglumi, HumaStar 600), then P-3
+  (HumaStar 100/200/300SR).
+
+Per-analyzer formats, checked against the manuals and captures in
+`docs/Equipment Docs` by `tests/test_converters.py`.
+
+Anything EasyMed can't place (no sample code, unknown sample, unmapped code,
+test not requested) waits in the **Analyzer Inbox** in the Laboratory
+dashboard and is posted once fixed. Nothing is dropped.
+
+If EasyMed is unreachable, results are written to `SPOOL_DIR` and retried
+every `SPOOL_RETRY_SECONDS`. The analyzer is still acknowledged (HL7 `AA`),
+because the results are safe on disk. An HL7 message that can't be read at
+all is answered `AE`.
+
+Tests: `python -m pytest tests`

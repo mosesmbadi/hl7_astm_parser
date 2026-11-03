@@ -4,6 +4,7 @@ import logging
 import threading
 from decouple import config
 from utils.utils import handle_client_connection
+from coms.send_results_to_lis import start_spool_worker
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -18,6 +19,8 @@ def main():
         server_socket.listen()
 
         print(f"Listening for incoming connections on {host}:{port}...")
+        # Results EasyMed could not take earlier are retried in the background
+        start_spool_worker()
 
         while True:
             try:

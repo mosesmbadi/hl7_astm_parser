@@ -31,27 +31,44 @@ def send_response(connection, message):
         print(f"Error sending response: {e}")
 
 
+def describe(runs):
+    """'2 run(s): DDLR00012-2026 (35 results), ...' -- no patient details."""
+    parts = [f"{run['sample_id'] or 'no sample code'} ({len(run['results'])} results)" for run in runs]
+    return f"{len(runs)} run(s): {', '.join(parts)}" if runs else "no results"
+
+
 def process_full_data(decoded_data, connection, address):
-    """Process the full data from a source and send the appropriate response."""
+    """
+    Process one complete message from an analyzer.
+
+    Returns True when its results are safe -- stored by EasyMed, or spooled
+    for retry -- and False when the message could not be read at all.
+    """
     try:
         logger.info(f"Processing full data from {address}")
+        logger.debug(f"Raw message from {address}: {decoded_data!r}")
 
         # Check if incoming data is HL7
         if "MSH" in decoded_data:
-            logger.debug("Detected HL7 data.")
             try:
-                converted_data = convert_hl7_to_json(decoded_data)
-                logger.info(f"Converted HL7 to JSON: {converted_data}")
-
-                send_to_lab_endpoints(converted_data, 'hl7')
+                runs = convert_hl7_to_json(decoded_data)
             except Exception as e:
-                logger.error(f"Error processing HL7 data: {e}", exc_info=True)
+                logger.error(f"Could not read HL7 message: {e}. Raw: {decoded_data!r}", exc_info=True)
+                return False
+            logger.info(f"Read HL7 message from {address}: {describe(runs)}")
+            send_to_lab_endpoints(runs, decoded_data, 'hl7')
+            return True
 
         # Check if incoming data is ASTM
         elif decoded_data.lstrip().startswith('H|'):
-            astm_message_dict = convert_astm_to_json(decoded_data)
-            print(f'Converted ASTM to JSON: {astm_message_dict}')
-            send_to_lab_endpoints(astm_message_dict, 'astm')
+            try:
+                runs = convert_astm_to_json(decoded_data)
+            except Exception as e:
+                logger.error(f"Could not read ASTM message: {e}. Raw: {decoded_data!r}", exc_info=True)
+                return False
+            logger.info(f"Read ASTM message from {address}: {describe(runs)}")
+            send_to_lab_endpoints(runs, decoded_data, 'astm')
+            return True
 
         # Check if incoming data is JSON
         elif '{' in decoded_data:
@@ -80,6 +97,9 @@ def process_full_data(decoded_data, connection, address):
 
     except Exception as e:
         logger.error(f"Unexpected error processing data: {e}", exc_info=True)
+        return False
+
+    return True
 
 
 def checksum_ok(frame):
@@ -88,15 +108,19 @@ def checksum_ok(frame):
     return frame[-2:].upper() == f"{expected:02X}".encode()
 
 
-def build_hl7_ack(hl7_message):
-    """Builds an MLLP-wrapped ACK for the message's control ID (MSH-10)."""
+def build_hl7_ack(hl7_message, code='AA'):
+    """
+    Builds an MLLP-wrapped ACK for the message's control ID (MSH-10).
+    AA once the results are safe (stored or spooled), AE when the message
+    could not be read, so the analyzer flags it instead of assuming success.
+    """
     msh = hl7_message.split('\r')[0].split('|')
     control_id = msh[9] if len(msh) > 9 else ''
     version = msh[11] if len(msh) > 11 else '2.3.1'
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
     ack = (
         f"MSH|^~\\&|LIS||{msh[2] if len(msh) > 2 else ''}||{timestamp}||ACK^R01|{control_id}|P|{version}\r"
-        f"MSA|AA|{control_id}\r"
+        f"MSA|{code}|{control_id}\r"
     )
     return MLLP_START + ack.encode('utf-8') + MLLP_END
 
@@ -156,8 +180,8 @@ def handle_client_connection(connection, address):
                         break
                     hl7_message = buffer[1:end].decode('utf-8', errors='ignore')
                     buffer = buffer[end + len(MLLP_END):]
-                    process_full_data(hl7_message, connection, address)
-                    connection.sendall(build_hl7_ack(hl7_message))
+                    accepted = process_full_data(hl7_message, connection, address)
+                    connection.sendall(build_hl7_ack(hl7_message, 'AA' if accepted else 'AE'))
 
                 elif first in (b'\r', b'\n', b' '):
                     buffer = buffer[1:]

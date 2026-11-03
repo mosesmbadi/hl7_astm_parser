@@ -1,2 +1,9 @@
 .venv
 .*venv
+# Results waiting for EasyMed (see SPOOL_DIR)
+spool/
+
+# Secrets and build artefacts: never commit
+.env
+__pycache__/
+*.pyc
