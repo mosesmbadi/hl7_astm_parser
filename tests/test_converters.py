@@ -230,3 +230,41 @@ def test_maglumi_800_capture():
     ]
     assert runs[1]['results'][0] == {'code': 'TSH', 'value': '0.531', 'unit': 'uIU/mL',
                                      'reference_range': '0.3 to 4.5', 'flag': 'N'}
+
+
+# As received from an ichroma (Boditech) in the lab, no ID entered on the
+# device. SPM-2 'DT4WBQ07' is the T4 cartridge lot, not a sample.
+ICHROMA_NO_ID = "\r".join([
+    "MSH|^~\\&|1|ichroma2|TF300||20261123120340||OUL^R24^OUL_R24|1|T|2.6",
+    "PID|||||||-",
+    "OBR||T4|0|1|||20261123120340|||-",
+    "ORC|OK||||||||||||||||TF300|1",
+    "SPM|1|DT4WBQ07||||||||||||||||20271026",
+    "OBX|1|TX|T4||104.35|nmol/L||0|||R",
+    "OBX|2|TX|||8.10|ug/dL||0|||R",
+])
+
+
+def test_ichroma_cartridge_lot_is_never_the_sample_id():
+    [run] = convert_hl7_to_json(ICHROMA_NO_ID)
+    assert run['sample_id'] == ''
+    # MSH-3 is only a device number; MSH-4 names the analyzer.
+    assert run['sender'] == 'ichroma2'
+
+
+def test_ichroma_results_drop_the_no_flag_zero_and_the_uncoded_unit_copy():
+    [run] = convert_hl7_to_json(ICHROMA_NO_ID)
+    assert [(r['code'], r['value'], r['unit'], r['flag']) for r in run['results']] == [
+        ('T4', '104.35', 'nmol/L', '')]
+
+
+def test_ichroma_sample_id_is_the_id_entered_on_the_device():
+    message = ICHROMA_NO_ID.replace("PID|||||||-", "PID|||DDLR00012-2026||||-")
+    [run] = convert_hl7_to_json(message)
+    assert run['sample_id'] == 'DDLR00012-2026'
+
+
+def test_flag_zero_is_kept_for_other_analyzers():
+    message = ICHROMA_NO_ID.replace("|ichroma2|", "|other|")
+    [run] = convert_hl7_to_json(message)
+    assert run['results'][0]['flag'] == '0'

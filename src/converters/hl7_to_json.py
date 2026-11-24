@@ -7,9 +7,18 @@ Analyzers differ in where they put things; see docs/Equipment Docs:
   HumaCount 30TS  SAC-3, else MSH-10     sample        OBX-5          $~\\&  ($ = components)
   Dymind 5-part   OBR-3                  sample        OBX-5          ^~\\&
   Maglumi X8      SPM-2.1                test          OBX-5.1/5.2    ^~\\&, OBX-2 empty
+  ichroma         PID-3 (provisional)    sample        OBX-5          ^~\\&
 
 So separators are read from MSH, and results are grouped by sample, not by
 OBR.
+
+The ichroma (Boditech, MSH-4 'ichroma2') puts the cartridge lot in SPM-2 and
+the cartridge expiry at the end of SPM, so SPM is never its sample ID: the
+same lot runs many patients, and taking it would post one patient's result
+on another's sample. The ID the operator enters on the device is read from
+PID-3 -- to be confirmed against a message sent with an ID entered. Its MSH-3
+is a device number ('1'), so MSH-4 names it, and its OBX-8 flag '0' means no
+flag.
 """
 import re
 
@@ -81,6 +90,7 @@ def convert_hl7_to_json(hl7_str):
     sep = Separators('MSH|^~\\&')
     runs = {}  # (sample_id, patient_id, patient_name) -> run, in arrival order
     sender = control_id = ""
+    is_ichroma = False
     patient_name = patient_id = ""
     ids = {}  # candidate sample IDs for the specimen being read
     is_qc = False
@@ -94,6 +104,10 @@ def convert_hl7_to_json(hl7_str):
         if kind == 'MSH':
             # fields[1] is MSH-2 (encoding characters), so MSH-n is fields[n-1]
             sender = sep.component(field(fields, 2), 0)
+            facility = sep.component(field(fields, 3), 0)
+            is_ichroma = facility.lower().startswith('ichroma')
+            if is_ichroma:
+                sender = facility
             control_id = field(fields, 9).strip()
             patient_name = patient_id = ""
             ids, is_qc = {}, False
@@ -130,7 +144,7 @@ def convert_hl7_to_json(hl7_str):
             if not is_reportable(code, value):
                 continue
 
-            sample_id = sample_id_of(ids, sender, control_id)
+            sample_id = sample_id_of(ids, sender, control_id, is_ichroma, patient_id)
             key = (sample_id, patient_id, patient_name)
             if key not in runs:
                 runs[key] = {
@@ -140,6 +154,9 @@ def convert_hl7_to_json(hl7_str):
                     "patient_id": patient_id,
                     "results": [],
                 }
+            flag = sep.component(sep.first_repeat(field(fields, 8)), 0)
+            if is_ichroma and flag == '0':
+                flag = ''
             runs[key]["results"].append({
                 "code": code,
                 "value": value,
@@ -148,13 +165,13 @@ def convert_hl7_to_json(hl7_str):
                 "unit": field(fields, 6).strip().lstrip('$' + sep.component_sep).strip(),
                 "reference_range": field(fields, 7).strip(),
                 # OBX-8 repeats ('L~A'); the first is the abnormal flag
-                "flag": sep.component(sep.first_repeat(field(fields, 8)), 0),
+                "flag": flag,
             })
 
     return list(runs.values())
 
 
-def sample_id_of(ids, sender, control_id):
+def sample_id_of(ids, sender, control_id, is_ichroma=False, patient_id=""):
     """
     The sample code EasyMed uses to find the patient's tests, from the most
     specific place an analyzer puts it to the least.
@@ -163,6 +180,10 @@ def sample_id_of(ids, sender, control_id):
     control ID); it sends 'AUTO_nnnnn' there when none was entered. Other
     analyzers use MSH-10 for a message number, so it is only read for them.
     """
+    if is_ichroma:
+        # Only what the operator entered; never the cartridge lot in SPM-2,
+        # nor OBR-2/3, which hold the test name and a counter.
+        return patient_id if patient_id.strip('- ') else ""
     found = ids.get('spm') or ids.get('sac') or ids.get('obr3') or ids.get('obr2')
     if found:
         return found
